@@ -79,7 +79,7 @@ function ListRules(props) {
   const delRule = useAction(deleteRule)[1];
   const isLoading = products.loading || channels.loading || rules.loading;
   const error =
-    products.error || channels.error || rules.error || scheduledChanges.error || dialogState.error;
+    products.error || channels.error || rules.error || scheduledChanges.error;
   const handleFilterChange = ({ target: { value } }) => {
     const [product, channel] = value.split(productChannelSeparator);
     const query =
@@ -248,28 +248,6 @@ function ListRules(props) {
       ...dialogState,
       open: true,
       title: 'Delete Rule?',
-      // body: `This will delete rule ${rule.rule_id}.`,
-      body: rule.scheduledChange ? (
-        <Fragment>
-          <DateTimePicker
-            disablePast
-            inputVariant="outlined"
-            fullWidth
-            label="When"
-            onError={handleDateTimePickerError}
-            helperText={
-              dateTimePickerError ||
-              (scheduleDeleteDate < new Date()
-                ? 'Scheduled for ASAP'
-                : undefined)
-            }
-            onDateTimeChange={handleDateTimeChange}
-            value={scheduleDeleteDate}
-          />
-        </Fragment>
-      ) : (
-        `This will delete rule ${rule.rule_id}.`
-      ),
       confirmText: 'Delete',
       item: rule,
     });
@@ -291,6 +269,28 @@ function ListRules(props) {
       rulesWithScheduledChanges.filter(i => i.rule_id !== dialogRule.rule_id)
     );
   };
+
+  const dialogBody =
+    dialogState.item &&
+    (dialogState.item.scheduledChange ? (
+      <Fragment>
+        <DateTimePicker
+          disablePast
+          inputVariant="outlined"
+          fullWidth
+          label="When"
+          onError={handleDateTimePickerError}
+          helperText={
+            dateTimePickerError ||
+            (scheduleDeleteDate < new Date() ? 'Scheduled for ASAP' : undefined)
+          }
+          onDateTimeChange={handleDateTimeChange}
+          value={scheduleDeleteDate}
+        />
+      </Fragment>
+    ) : (
+      `This will delete rule ${dialogState.item.rule_id}.`
+    ));
 
   return (
     <Dashboard title="Rules">
@@ -343,7 +343,7 @@ function ListRules(props) {
       <DialogAction
         open={dialogState.open}
         title={dialogState.title}
-        body={dialogState.body}
+        body={dialogBody}
         confirmText={dialogState.confirmText}
         onSubmit={handleDialogSubmit}
         onError={handleDialogError}
